@@ -1,0 +1,1 @@
+learning rate: 0.7training episodes: 100test episodes: 100max steps: 25

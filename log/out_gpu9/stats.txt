@@ -1,0 +1,8 @@
+learning rate: 0.8
+training episodes: 1200
+test episodes: 0
+max steps: 30
+goal steps: 10
+high discount: 1.3
+low discount: 0.15
+runtime: 231.691598
