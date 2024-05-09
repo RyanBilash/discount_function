@@ -13,18 +13,18 @@ from gymnasium.utils.save_video import save_video
 
 start_time = dt.now()
 
-FOLDER_NAME = "out44"
+FOLDER_NAME = "out46"
 os.makedirs(f"log/{FOLDER_NAME}")
 
-learning_rate = 0.80
+learning_rate = 0.9
 epsilon = 1
 max_epsilon = 1
 min_epsilon = 0.05
 decay = 0.002
 
 max_episodes = 4500
-test_episodes = 35
-max_steps = 80
+rand_episodes = 15
+max_steps = 150
 min_steps = 60
 
 goal_step = 20
@@ -38,6 +38,16 @@ obstacle_map = [
     "0000000",
     "0100010",
 ]
+
+available_starts = []
+for i in range(7*4):
+    available_starts.append(i)
+available_starts.remove(5)
+available_starts.remove(6)
+available_starts.remove(7)
+available_starts.remove(26)
+available_starts.remove(22)
+
 
 env = gym.make(
     'SimpleGrid-v0',
@@ -149,16 +159,17 @@ epsilons = []
 for episode in range(max_episodes):
     print(episode)
     total_training_rewards = 0
-    state = env.reset(options={'start_loc': 0, 'goal_loc': 6})
-    state = state[0]
+    #state = env.reset(options={'start_loc': 0, 'goal_loc': 6})
+    #state = state[0]
 
-    curr_steps = int(max_steps - ((max_steps - min_steps) * ((episode-test_episodes) / (max_episodes-test_episodes))))
+    curr_steps = int(max_steps - ((max_steps - min_steps) * ((episode - rand_episodes) / (max_episodes - rand_episodes))))
 
-    if episode < test_episodes:
+    if episode < rand_episodes:
         curr_steps = max_steps
+        state = env.reset(options={'start_loc': random.choice(available_starts), 'goal_loc': 6})
+        state = state[0]
 
-    for step in range(curr_steps-1):
-        if episode < test_episodes:
+        for step in range(curr_steps - 1):
             action = env.action_space.sample()
             obs, reward, done, _, info, _ = env.step(action)
 
@@ -167,7 +178,10 @@ for episode in range(max_episodes):
 
             total_training_rewards += reward
             state = obs
-        else:
+    else:
+        state = env.reset(options={'start_loc': 0, 'goal_loc': 6})
+        state = state[0]
+        for step in range(curr_steps - 1):
         # Choosing an action given the states based on a random number
             exp_exp_tradeoff = random.uniform(0, 1)
             if exp_exp_tradeoff > epsilon:
@@ -233,7 +247,7 @@ plt.close()
 f = open(f"./log/{FOLDER_NAME}/stats.txt", "w")
 f.write(f"learning rate: {learning_rate}\n")
 f.write(f"training episodes: {max_episodes}\n")
-f.write(f"test episodes: {test_episodes}\n")
+f.write(f"test episodes: {rand_episodes}\n")
 f.write(f"max steps: {max_steps}\n")
 f.write(f"goal steps: {goal_step}\n")
 f.write(f"high discount: {high_discount}\n")
