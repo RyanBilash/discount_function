@@ -13,40 +13,39 @@ from gymnasium.utils.save_video import save_video
 
 start_time = dt.now()
 
-FOLDER_NAME = "out46"
+FOLDER_NAME = "out_example"
 os.makedirs(f"log/{FOLDER_NAME}")
 
-learning_rate = 0.9
+learning_rate = 0.78
 epsilon = 1
 max_epsilon = 1
 min_epsilon = 0.05
 decay = 0.002
 
-max_episodes = 4500
-rand_episodes = 15
-max_steps = 150
-min_steps = 60
+max_episodes = 500
+rand_episodes = 0
+max_steps = 40
+min_steps = 40
 
-goal_step = 20
-high_discount = 1.2
-low_discount = 0.95
+goal_step = 10
+high_discount = 1.5
+low_discount = 0.8
 
 
 obstacle_map = [
     "0000010",
     "1000000",
     "0000000",
-    "0100010",
 ]
 
-available_starts = []
+"""available_starts = []
 for i in range(7*4):
     available_starts.append(i)
 available_starts.remove(5)
 available_starts.remove(6)
 available_starts.remove(7)
 available_starts.remove(26)
-available_starts.remove(22)
+available_starts.remove(22)"""
 
 
 env = gym.make(
@@ -70,14 +69,14 @@ class DelayedReward(gym.Wrapper):
 
     def __init__(self, env, T, high_discount, low_discount):
         gym.Wrapper.__init__(self, env)
-        self.env.n_iter = 0
+        #self.env.n_iter = 0
         #self.unwrapped.MOVES = self.MOVES
         self.T = T
         self.high_discount = high_discount
         self.low_discount = low_discount
         self.timestep = 0
 
-        self.action_space = spaces.Discrete(len(self.MOVES))
+        #self.action_space = spaces.Discrete(len(self.MOVES))
 
     def temp_reward(self, rew):
         if 0.9 < rew < 1.1:
@@ -130,7 +129,7 @@ class DelayedReward(gym.Wrapper):
 
 env = DelayedReward(env, goal_step, high_discount, low_discount)
 """obs, info ="""
-env.reset(options={'start_loc': 0, 'goal_loc': 6})
+env.reset(options={'start_loc': 0, 'goal_loc': 14})
 rew = env.unwrapped.reward
 done = env.unwrapped.done
 
@@ -166,7 +165,7 @@ for episode in range(max_episodes):
 
     if episode < rand_episodes:
         curr_steps = max_steps
-        state = env.reset(options={'start_loc': random.choice(available_starts), 'goal_loc': 6})
+        state = env.reset(options={'start_loc': 0, 'goal_loc': 14})
         state = state[0]
 
         for step in range(curr_steps - 1):
@@ -179,7 +178,7 @@ for episode in range(max_episodes):
             total_training_rewards += reward
             state = obs
     else:
-        state = env.reset(options={'start_loc': 0, 'goal_loc': 6})
+        state = env.reset(options={'start_loc': 0, 'goal_loc': 14})
         state = state[0]
         for step in range(curr_steps - 1):
         # Choosing an action given the states based on a random number
@@ -215,21 +214,8 @@ for episode in range(max_episodes):
             frames = env.render()
             save_video(frames, f"log/{FOLDER_NAME}", fps=env.fps)
 
-"""for t in range(500):
-    # img = env.render(caption=f"t:{t}, rew:{rew}, pos:{obs}")
 
-    action = env.action_space.sample()
-    f.write(f"{t},{info['agent_xy'][0]},{info['agent_xy'][1]},{rew},{done},{action}\n")
-
-    if done:
-        break
-
-    obs, rew, done, _, info, _ = env.step(action)"""
-
-"""if env.render_mode == 'rgb_array_list':
-    frames = env.render()
-    save_video(frames, f"log/{FOLDER_NAME}", fps=env.fps)"""
-
+print(f"done in {step} steps")
 end_time = dt.now()
 
 total_time = end_time - start_time
