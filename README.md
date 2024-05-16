@@ -23,3 +23,4 @@ Additional comments:
 * Runtime is poor, because I was unable to get CUDA working, otherwise main_gpu.py would be used instead.  If I could have gotten CUDA working I would have been able to train much larger models.
 * Most of the important changes are in the class DelayedReward.  Other hyperparameters as well as the changes to the Q-value table are included outside this class.
 * Sample gifs and reward graphs from different trainings are found in ./log/
+* A sample training/running example is given in ./project_video.mp4
